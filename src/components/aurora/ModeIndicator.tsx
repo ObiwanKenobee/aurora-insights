@@ -6,6 +6,7 @@ const modeConfig: Record<AuroraMode, { label: string; colorClass: string; glowCl
   assist: { label: "Assisting", colorClass: "bg-aurora-assist", glowClass: "glow-primary" },
   act: { label: "Acting", colorClass: "bg-aurora-act", glowClass: "glow-act" },
   explain: { label: "Explaining", colorClass: "bg-aurora-explain", glowClass: "glow-explain" },
+  pressure: { label: "Incident", colorClass: "bg-destructive", glowClass: "" },
 };
 
 interface ModeIndicatorProps {
@@ -14,7 +15,7 @@ interface ModeIndicatorProps {
 }
 
 export function ModeIndicator({ mode, onModeChange }: ModeIndicatorProps) {
-  const modes: AuroraMode[] = ["observe", "assist", "act", "explain"];
+  const modes: AuroraMode[] = ["observe", "assist", "act", "explain", "pressure"];
 
   return (
     <div className="flex items-center gap-1.5">

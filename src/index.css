@@ -42,6 +42,7 @@
     --aurora-act: 155 72% 50%;
     --aurora-explain: 38 90% 55%;
     --aurora-thinking: 38 90% 55%;
+    --aurora-pressure: 0 72% 55%;
 
     /* Timeline lane colors */
     --lane-perceived: 200 85% 58%;
@@ -59,6 +60,7 @@
     --glow-observe: 200 85% 58%;
     --glow-act: 155 72% 50%;
     --glow-explain: 38 90% 55%;
+    --glow-pressure: 0 72% 55%;
 
     --sidebar-background: 228 14% 9%;
     --sidebar-foreground: 210 20% 92%;
