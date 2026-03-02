@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { AuroraMode, TimelineEvent, SessionContext } from "@/types/aurora";
+import type { AuroraMode, TimelineEvent, SessionContext, SlideHighlight } from "@/types/aurora";
 import { Waveform } from "./Waveform";
 import { ModeIndicator } from "./ModeIndicator";
 import { StatusBadges } from "./StatusBadges";
@@ -8,6 +8,7 @@ import { CognitiveTimeline } from "./CognitiveTimeline";
 import { SessionContextPanel } from "./SessionContext";
 import { VoiceTranscript } from "./VoiceTranscript";
 import { GhostCursor } from "./GhostCursor";
+import { IncidentPanel } from "./IncidentPanel";
 import { Mic, MicOff, Eye, Zap } from "lucide-react";
 
 const demoTimeline: TimelineEvent[] = [
@@ -34,7 +35,31 @@ const transcriptLines = [
   "Actually, let's focus on making the headline stronger first.",
 ];
 
-export function AuroraOverlay() {
+// Highlight sequences per mode
+const highlightSequences: Record<string, SlideHighlight[]> = {
+  observe: [
+    { slideNum: 4, type: "perceive", label: "Weak language detected" },
+    { slideNum: 6, type: "perceive", label: "Missing context" },
+  ],
+  assist: [
+    { slideNum: 4, type: "perceive", label: "Analyzing..." },
+  ],
+  explain: [
+    { slideNum: 4, type: "explain", label: "✨ Rewriting", replacementText: "The Unfair Advantage: Why Teams Ship 3× Faster" },
+    { slideNum: 6, type: "explain", label: "📊 Generating chart" },
+  ],
+  act: [
+    { slideNum: 4, type: "act", label: "✓ Updated" },
+  ],
+  pressure: [],
+};
+
+export interface AuroraOverlayProps {
+  onModeChange?: (mode: AuroraMode) => void;
+  onHighlightsChange?: (highlights: SlideHighlight[]) => void;
+}
+
+export function AuroraOverlay({ onModeChange, onHighlightsChange }: AuroraOverlayProps) {
   const [mode, setMode] = useState<AuroraMode>("observe");
   const [isListening, setIsListening] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -43,60 +68,70 @@ export function AuroraOverlay() {
   const [transcriptIndex, setTranscriptIndex] = useState(0);
   const [visibleEvents, setVisibleEvents] = useState<TimelineEvent[]>([]);
 
-  // Simulate progressive timeline events
+  // Progressive timeline events
   useEffect(() => {
     const timers: NodeJS.Timeout[] = [];
     demoTimeline.forEach((event, i) => {
-      timers.push(
-        setTimeout(() => {
-          setVisibleEvents((prev) => [...prev, event]);
-        }, 1500 + i * 800)
-      );
+      timers.push(setTimeout(() => setVisibleEvents((prev) => [...prev, event]), 1500 + i * 800));
     });
     return () => timers.forEach(clearTimeout);
   }, []);
 
-  // Cycle through modes for demo
+  // Cycle modes
   useEffect(() => {
     const modes: AuroraMode[] = ["observe", "assist", "act", "explain"];
     let i = 0;
     const interval = setInterval(() => {
       i = (i + 1) % modes.length;
-      setMode(modes[i]);
-      if (modes[i] === "act") {
+      const newMode = modes[i];
+      setMode(newMode);
+      onModeChange?.(newMode);
+      if (newMode === "act") {
         setGhostActive(true);
         setIsSpeaking(true);
         setTimeout(() => setIsSpeaking(false), 2000);
       }
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [onModeChange]);
+
+  // Update highlights based on mode
+  useEffect(() => {
+    const highlights = highlightSequences[mode] || [];
+    onHighlightsChange?.(highlights);
+  }, [mode, onHighlightsChange]);
 
   // Cycle transcript
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTranscriptIndex((i) => (i + 1) % transcriptLines.length);
-    }, 4000);
+    const interval = setInterval(() => setTranscriptIndex((i) => (i + 1) % transcriptLines.length), 4000);
     return () => clearInterval(interval);
   }, []);
 
   const toggleListening = useCallback(() => setIsListening((v) => !v), []);
 
+  const handleModeChange = useCallback((newMode: AuroraMode) => {
+    setMode(newMode);
+    onModeChange?.(newMode);
+    if (newMode === "act") setGhostActive(true);
+  }, [onModeChange]);
+
+  const isPressure = mode === "pressure";
+
   return (
     <>
       <GhostCursor active={ghostActive} targetLabel="Updated headline" />
 
-      {/* Main floating overlay - bottom center */}
+      {/* Main floating overlay */}
       <motion.div
         className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-lg px-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <div className="glass rounded-2xl p-3 glow-primary space-y-2">
-          {/* Top row: mode + statuses */}
+        <div className={`glass rounded-2xl p-3 space-y-2 ${isPressure ? "ring-1 ring-destructive/30" : "glow-primary"}`}>
+          {/* Top row */}
           <div className="flex items-center justify-between">
-            <ModeIndicator mode={mode} onModeChange={setMode} />
+            <ModeIndicator mode={mode} onModeChange={handleModeChange} />
             <StatusBadges
               mode={mode}
               visionActive={visionActive}
@@ -106,7 +141,7 @@ export function AuroraOverlay() {
           </div>
 
           {/* Waveform */}
-          <Waveform mode={mode} isListening={isListening} isSpeaking={isSpeaking} />
+          <Waveform mode={isPressure ? "observe" : mode} isListening={isListening} isSpeaking={isSpeaking} />
 
           {/* Controls row */}
           <div className="flex items-center justify-between">
@@ -130,41 +165,44 @@ export function AuroraOverlay() {
                 <Eye className="w-3.5 h-3.5" />
               </motion.button>
               <motion.button
-                onClick={() => {
-                  setGhostActive(true);
-                  setMode("act");
-                }}
+                onClick={() => { setGhostActive(true); handleModeChange("act"); }}
                 className="p-1.5 rounded-full bg-secondary text-muted-foreground hover:text-aurora-act transition-colors"
                 whileTap={{ scale: 0.9 }}
               >
                 <Zap className="w-3.5 h-3.5" />
               </motion.button>
             </div>
-
             <div className="flex items-center gap-1.5">
-              <span className="w-1 h-1 rounded-full bg-aurora-act animate-breath" />
-              <span className="text-[10px] font-mono text-muted-foreground">
-                Aurora
-              </span>
+              <span className={`w-1 h-1 rounded-full animate-breath ${isPressure ? "bg-destructive" : "bg-aurora-act"}`} />
+              <span className="text-[10px] font-mono text-muted-foreground">Aurora</span>
             </div>
           </div>
         </div>
       </motion.div>
 
-      {/* Right side panel: Timeline + Session + Transcript */}
+      {/* Right panel */}
       <motion.div
         className="fixed top-4 right-4 z-30 w-80 space-y-3"
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-        <CognitiveTimeline events={visibleEvents} />
-        <SessionContextPanel context={demoSession} />
-
         <AnimatePresence mode="wait">
-          <motion.div key={transcriptIndex}>
-            <VoiceTranscript text={transcriptLines[transcriptIndex]} isListening={isListening} />
-          </motion.div>
+          {isPressure ? (
+            <motion.div key="incident" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <IncidentPanel />
+            </motion.div>
+          ) : (
+            <motion.div key="normal" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
+              <CognitiveTimeline events={visibleEvents} />
+              <SessionContextPanel context={demoSession} />
+              <AnimatePresence mode="wait">
+                <motion.div key={transcriptIndex}>
+                  <VoiceTranscript text={transcriptLines[transcriptIndex]} isListening={isListening} />
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
+          )}
         </AnimatePresence>
       </motion.div>
     </>

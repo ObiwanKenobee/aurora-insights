@@ -7,6 +7,7 @@ const modeColors: Record<AuroraMode, string> = {
   assist: "var(--aurora-assist)",
   act: "var(--aurora-act)",
   explain: "var(--aurora-explain)",
+  pressure: "var(--aurora-pressure)",
 };
 
 interface WaveformProps {
