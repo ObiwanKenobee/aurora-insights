@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import type { AuroraMode, SlideHighlight } from "@/types/aurora";
+import { ScanningOverlay } from "./ScanningOverlay";
 
 interface DemoWorkspaceProps {
   mode: AuroraMode;
@@ -58,6 +59,8 @@ export function DemoWorkspace({ mode, highlights }: DemoWorkspaceProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 + i * 0.1 }}
             >
+              {/* Scanning overlay for perceived slides */}
+              <ScanningOverlay active={isPerceived} />
               {/* Bounding box corners for perceived slides */}
               <AnimatePresence>
                 {isPerceived && (

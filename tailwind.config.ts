@@ -68,6 +68,7 @@ export default {
           act: "hsl(var(--aurora-act))",
           explain: "hsl(var(--aurora-explain))",
           thinking: "hsl(var(--aurora-thinking))",
+          pressure: "hsl(var(--aurora-pressure))",
         },
         // Timeline lanes
         lane: {
