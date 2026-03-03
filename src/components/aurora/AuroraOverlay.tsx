@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { AuroraMode, TimelineEvent, SessionContext, SlideHighlight } from "@/types/aurora";
 import type { AuroraAnalysis } from "@/lib/aurora-ai";
@@ -10,6 +10,8 @@ import { SessionContextPanel } from "./SessionContext";
 import { VoiceTranscript } from "./VoiceTranscript";
 import { GhostCursor } from "./GhostCursor";
 import { IncidentPanel } from "./IncidentPanel";
+import { AwarenessIndicator } from "./AwarenessIndicator";
+import { VoiceInteraction } from "./VoiceInteraction";
 import { Mic, MicOff, Eye, Zap } from "lucide-react";
 
 const demoTimeline: TimelineEvent[] = [
@@ -36,7 +38,6 @@ const transcriptLines = [
   "Actually, let's focus on making the headline stronger first.",
 ];
 
-// Highlight sequences per mode
 const highlightSequences: Record<string, SlideHighlight[]> = {
   observe: [
     { slideNum: 4, type: "perceive", label: "Weak language detected" },
@@ -71,14 +72,16 @@ export function AuroraOverlay({ onModeChange, onHighlightsChange, aiAnalysis, ai
   const [transcriptIndex, setTranscriptIndex] = useState(0);
   const [visibleEvents, setVisibleEvents] = useState<TimelineEvent[]>([]);
 
-  // Build timeline from AI analysis or use demo data
+  // Cognitive load derived from events + mode
+  const cognitiveLoad = Math.min(1, visibleEvents.length / 8 + (mode === "pressure" ? 0.3 : 0));
+
+  // Build timeline from AI analysis or demo data
   useEffect(() => {
     if (aiAnalysis) {
       const aiEvents: TimelineEvent[] = [];
       aiAnalysis.perceived.forEach((p, i) => aiEvents.push({ id: `ai-p${i}`, lane: "perceived", content: p, timestamp: i }));
       aiAnalysis.inferred.forEach((p, i) => aiEvents.push({ id: `ai-i${i}`, lane: "inferred", content: p, timestamp: i }));
       aiAnalysis.decided.forEach((p, i) => aiEvents.push({ id: `ai-d${i}`, lane: "decided", content: p, timestamp: i }));
-      // Progressively reveal AI events
       const timers: NodeJS.Timeout[] = [];
       aiEvents.forEach((event, i) => {
         timers.push(setTimeout(() => setVisibleEvents((prev) => [...prev, event]), 500 + i * 600));
@@ -111,7 +114,7 @@ export function AuroraOverlay({ onModeChange, onHighlightsChange, aiAnalysis, ai
     return () => clearInterval(interval);
   }, [onModeChange]);
 
-  // Update highlights based on mode
+  // Update highlights
   useEffect(() => {
     const highlights = highlightSequences[mode] || [];
     onHighlightsChange?.(highlights);
@@ -131,11 +134,16 @@ export function AuroraOverlay({ onModeChange, onHighlightsChange, aiAnalysis, ai
     if (newMode === "act") setGhostActive(true);
   }, [onModeChange]);
 
+  const handleCognitiveShift = useCallback((event: TimelineEvent) => {
+    setVisibleEvents((prev) => [...prev, event]);
+  }, []);
+
   const isPressure = mode === "pressure";
 
   return (
     <>
       <GhostCursor active={ghostActive} targetLabel="Updated headline" />
+      <AwarenessIndicator mode={mode} cognitiveLoad={cognitiveLoad} eventsCount={visibleEvents.length} />
 
       {/* Main floating overlay */}
       <motion.div
@@ -156,8 +164,14 @@ export function AuroraOverlay({ onModeChange, onHighlightsChange, aiAnalysis, ai
             />
           </div>
 
-          {/* Waveform */}
-          <Waveform mode={isPressure ? "observe" : mode} isListening={isListening} isSpeaking={isSpeaking} />
+          {/* Voice interaction with WebRTC viz */}
+          <VoiceInteraction
+            isListening={isListening}
+            isSpeaking={isSpeaking}
+            mode={mode}
+            onInterrupt={() => setIsSpeaking(false)}
+            onCognitiveShift={handleCognitiveShift}
+          />
 
           {/* Controls row */}
           <div className="flex items-center justify-between">
