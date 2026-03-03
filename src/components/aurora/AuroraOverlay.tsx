@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { AuroraMode, TimelineEvent, SessionContext, SlideHighlight } from "@/types/aurora";
+import type { AuroraAnalysis } from "@/lib/aurora-ai";
 import { Waveform } from "./Waveform";
 import { ModeIndicator } from "./ModeIndicator";
 import { StatusBadges } from "./StatusBadges";
@@ -57,9 +58,11 @@ const highlightSequences: Record<string, SlideHighlight[]> = {
 export interface AuroraOverlayProps {
   onModeChange?: (mode: AuroraMode) => void;
   onHighlightsChange?: (highlights: SlideHighlight[]) => void;
+  aiAnalysis?: AuroraAnalysis | null;
+  aiLoading?: boolean;
 }
 
-export function AuroraOverlay({ onModeChange, onHighlightsChange }: AuroraOverlayProps) {
+export function AuroraOverlay({ onModeChange, onHighlightsChange, aiAnalysis, aiLoading }: AuroraOverlayProps) {
   const [mode, setMode] = useState<AuroraMode>("observe");
   const [isListening, setIsListening] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -68,14 +71,27 @@ export function AuroraOverlay({ onModeChange, onHighlightsChange }: AuroraOverla
   const [transcriptIndex, setTranscriptIndex] = useState(0);
   const [visibleEvents, setVisibleEvents] = useState<TimelineEvent[]>([]);
 
-  // Progressive timeline events
+  // Build timeline from AI analysis or use demo data
   useEffect(() => {
-    const timers: NodeJS.Timeout[] = [];
-    demoTimeline.forEach((event, i) => {
-      timers.push(setTimeout(() => setVisibleEvents((prev) => [...prev, event]), 1500 + i * 800));
-    });
-    return () => timers.forEach(clearTimeout);
-  }, []);
+    if (aiAnalysis) {
+      const aiEvents: TimelineEvent[] = [];
+      aiAnalysis.perceived.forEach((p, i) => aiEvents.push({ id: `ai-p${i}`, lane: "perceived", content: p, timestamp: i }));
+      aiAnalysis.inferred.forEach((p, i) => aiEvents.push({ id: `ai-i${i}`, lane: "inferred", content: p, timestamp: i }));
+      aiAnalysis.decided.forEach((p, i) => aiEvents.push({ id: `ai-d${i}`, lane: "decided", content: p, timestamp: i }));
+      // Progressively reveal AI events
+      const timers: NodeJS.Timeout[] = [];
+      aiEvents.forEach((event, i) => {
+        timers.push(setTimeout(() => setVisibleEvents((prev) => [...prev, event]), 500 + i * 600));
+      });
+      return () => timers.forEach(clearTimeout);
+    } else {
+      const timers: NodeJS.Timeout[] = [];
+      demoTimeline.forEach((event, i) => {
+        timers.push(setTimeout(() => setVisibleEvents((prev) => [...prev, event]), 1500 + i * 800));
+      });
+      return () => timers.forEach(clearTimeout);
+    }
+  }, [aiAnalysis]);
 
   // Cycle modes
   useEffect(() => {

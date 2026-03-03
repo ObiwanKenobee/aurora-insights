@@ -1,0 +1,4 @@
+project_id = "jfowaklulcefybafgbxa"
+
+[functions.aurora-analyze]
+verify_jwt = false
