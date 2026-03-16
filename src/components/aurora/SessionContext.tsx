@@ -74,6 +74,48 @@ export function SessionContextPanel({ context }: SessionContextProps) {
                   </div>
                 ))}
               </div>
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
+                  User Preferences
+                </div>
+                {context.userPreferences.map((pref) => (
+                  <div key={pref} className="text-xs text-secondary-foreground/70">
+                    • {pref}
+                  </div>
+                ))}
+              </div>
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
+                  Recent Corrections
+                </div>
+                {context.recentCorrections.map((correction) => (
+                  <div key={correction} className="text-xs text-secondary-foreground/70">
+                    • {correction}
+                  </div>
+                ))}
+              </div>
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
+                  Active Plan
+                </div>
+                <div className="text-xs text-foreground">{context.activePlan}</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
+                  Last Successful Action
+                </div>
+                <div className="text-xs text-foreground">{context.lastSuccessfulAction}</div>
+              </div>
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
+                  Unresolved Blockers
+                </div>
+                {context.unresolvedBlockers.map((blocker) => (
+                  <div key={blocker} className="text-xs text-secondary-foreground/70">
+                    • {blocker}
+                  </div>
+                ))}
+              </div>
             </div>
           </motion.div>
         )}

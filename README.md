@@ -1,73 +1,179 @@
-# Welcome to your Lovable project
+# Aurora Insights
 
-## Project info
+A real-time multimodal cognitive copilot for complex digital workflows.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Architecture Overview
 
-## How can I edit this code?
+Aurora's intelligence is built on a sophisticated multi-layer prompt system:
 
-There are several ways of editing your application.
+### Core Identity
+Defines Aurora as a real-time cognitive copilot that perceives, infers, plans, and executes actions across live interfaces.
 
-**Use Lovable**
+### Runtime Behavior
+Governs live streaming behavior with incremental responses and interruption handling.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### Perception
+Structures how Aurora interprets visible screen evidence, audio input, and infers task state.
 
-Changes made via Lovable will be committed automatically to this repo.
+### Action Planning
+Prioritizes actions based on user goals, safety, and task context.
 
-**Use your preferred IDE**
+### UI Navigation / Tool Use
+Converts plans into structured UI actions with verification loops.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Session Memory / State Management
+Maintains compact working memory with relevant session information.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Domain Specialization
+Focuses Aurora's expertise on specific domains like startup pitch deck analysis.
 
-Follow these steps:
+## Key Features
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- 🧠 **Cognitive Timeline**: Visualizes Aurora's perception, inference, decision-making, and execution
+- 🎯 **Session Context**: Tracks current objective, active apps, open threads, and user preferences
+- 📊 **Interactive Annotations**: Highlights areas of interest with ghost cursor previews
+- 🎤 **Voice Interaction**: Supports real-time voice commands and interruptions
+- 🔄 **Incremental Responses**: Provides fluid, interruptible feedback
+- 🛡️ **Risk-Based Execution**: Auto-executes safe actions, requires confirmation for high-risk operations
+- 🎨 **Visual Mock Previews**: Shows suggested changes before execution
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Getting Started
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Installation
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+npm install
+```
+
+### Development
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Build
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm run build
+```
 
-**Use GitHub Codespaces**
+### Preview
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+npm run preview
+```
 
-## What technologies are used for this project?
+### Tests
 
-This project is built with:
+```bash
+npm run test
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Project Structure
 
-## How can I deploy this project?
+```
+src/
+├── components/
+│   ├── aurora/
+│   │   ├── AwarenessIndicator.tsx
+│   │   ├── CognitiveTimeline.tsx
+│   │   ├── DemoWorkspace.tsx
+│   │   ├── GhostCursor.tsx
+│   │   ├── IncidentPanel.tsx
+│   │   ├── ModeIndicator.tsx
+│   │   ├── ScanningOverlay.tsx
+│   │   ├── SessionContext.tsx
+│   │   ├── StatusBadges.tsx
+│   │   ├── VoiceInteraction.tsx
+│   │   └── Waveform.tsx
+│   ├── ui/
+│   │   ├── accordion.tsx
+│   │   ├── alert-dialog.tsx
+│   │   ├── alert.tsx
+│   │   ├── aspect-ratio.tsx
+│   │   ├── avatar.tsx
+│   │   ├── badge.tsx
+│   │   ├── breadcrumb.tsx
+│   │   ├── button.tsx
+│   │   ├── calendar.tsx
+│   │   ├── card.tsx
+│   │   ├── carousel.tsx
+│   │   ├── chart.tsx
+│   │   ├── checkbox.tsx
+│   │   ├── collapsible.tsx
+│   │   ├── command.tsx
+│   │   ├── context-menu.tsx
+│   │   ├── dialog.tsx
+│   │   ├── drawer.tsx
+│   │   ├── dropdown-menu.tsx
+│   │   ├── form.tsx
+│   │   ├── hover-card.tsx
+│   │   ├── input-otp.tsx
+│   │   ├── input.tsx
+│   │   ├── label.tsx
+│   │   ├── menubar.tsx
+│   │   ├── navigation-menu.tsx
+│   │   ├── pagination.tsx
+│   │   ├── popover.tsx
+│   │   ├── progress.tsx
+│   │   ├── radio-group.tsx
+│   │   ├── resizable.tsx
+│   │   ├── scroll-area.tsx
+│   │   ├── select.tsx
+│   │   ├── separator.tsx
+│   │   ├── sheet.tsx
+│   │   ├── sidebar.tsx
+│   │   ├── skeleton.tsx
+│   │   ├── slider.tsx
+│   │   ├── sonner.tsx
+│   │   ├── switch.tsx
+│   │   ├── table.tsx
+│   │   ├── tabs.tsx
+│   │   ├── textarea.tsx
+│   │   ├── toast.tsx
+│   │   ├── toaster.tsx
+│   │   ├── toggle-group.tsx
+│   │   ├── toggle.tsx
+│   │   └── tooltip.tsx
+│   └── NavLink.tsx
+├── examples/
+│   └── aurora-architecture.md
+├── hooks/
+│   └── use-mobile.tsx
+├── integrations/
+│   └── supabase/
+│       ├── client.ts
+│       └── types.ts
+├── lib/
+│   ├── aurora-ai.ts
+│   └── utils.ts
+├── pages/
+│   ├── Index.tsx
+│   └── NotFound.tsx
+├── test/
+│   ├── example.test.ts
+│   └── setup.ts
+├── types/
+│   └── aurora.ts
+├── App.css
+├── App.tsx
+├── index.css
+└── main.tsx
+```
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## Technologies
 
-## Can I connect a custom domain to my Lovable project?
+- **React 18** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **Tailwind CSS** - Utility-first CSS framework
+- **Shadcn UI** - Component library
+- **Supabase** - Backend as a service
+- **Framer Motion** - Animation library
+- **Lucide React** - Icon library
+- **Vitest** - Testing framework
+- **Google AI** - Language model integration
 
-Yes, you can!
+## License
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+MIT
